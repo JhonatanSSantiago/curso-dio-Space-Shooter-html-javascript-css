@@ -59,7 +59,15 @@ function createLaserElement() {
 function moveLaser(laser) {
     let laserInterval = setInterval(() => {
         let xPositionH = parseInt(laser.style.left);
+        let aliens = document.querySelectorAll('.alien');
 
+        aliens.forEach((alien) => { //compara se alien foi atigindo
+            if (checkLaserCollision(laser, alien)){
+                alien.src = 'img/explosion.png';
+                alien.classList.remove('alien');
+                alien.classList.add('dead-alien');
+            }
+        })
         if (xPositionH === 340) {
             laser.remove();
         } else {
@@ -69,7 +77,7 @@ function moveLaser(laser) {
     }, 10)
 }
 
-function createAliens() {
+function createAliens() { //criar aliens inimigos
     let newAlien = document.createElement('img');
     let alienSprite = aliensImg[Math.floor(Math.random() * aliensImg.length)]; //sorteio de aliens
     newAlien.scr = alienSprite;
@@ -80,5 +88,46 @@ function createAliens() {
     playArea.appendChild(newAlien);
     moveAlien(newAlien);
 }
+
+function moveAlien(alien) { //move aliens
+    let moveAlienInterval = setInterval(() => {
+        let xPositionH = parseInt(window.getComputedStyle(alien).getPropertyValue('left'))
+        if (xPositionH <= 50) {
+            if(Array.from(alien.classList).includes('dead-alien')) {
+                alien.remove();
+            } else {
+                gameOver();
+            } 
+        } else {
+            alien.style.left = `${xPositionH - 4}px`;           
+        }
+    }, 30);
+}
+
+function checkLaserCollision (laser, alien) { //colisão
+    let laserTop = parseInt(laser.style.top);
+    let laserLeft = parseInt(laser.style.left);
+    let laserBotton = laserTop - 20;
+
+    let alienTop = parseInt(alien.style.top);
+    let alienLeft = parseInt(alien.style.left);
+    let alienBotton = alienTop - 30;
+
+    if (laserLeft != 340 && laserLeft + 40 >= alienLeft) {
+        if(laserTop <= alienTop && laserTop >= alienBotton) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
+
+function gameOver() { //fim de jogo
+    alert("GAME OVER");
+}
+
+
 
 window.addEventListener('keydown', flyShip);
